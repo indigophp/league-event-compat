@@ -1,0 +1,5 @@
+suites:
+  event_suite:
+    namespace: League\Event\Compat
+    psr4_prefix: League\Event\Compat
+formatter.name: pretty
