@@ -8,7 +8,7 @@
 [![HHVM Status](https://img.shields.io/hhvm/indigophp/league-event-compat.svg?style=flat-square)](http://hhvm.h4cc.de/package/indigophp/league-event-compat)
 [![Total Downloads](https://img.shields.io/packagist/dt/indigophp/league-event-compat.svg?style=flat-square)](https://packagist.org/packages/indigophp/league-event-compat)
 
-**Provides a compatibility layer between Symfony EventDispatcher and League Event.**
+**League Event compatibility layer for Symfony EventDispatcher.**
 
 
 ## Install
@@ -22,6 +22,21 @@ $ composer require indigophp/league-event-compat
 ## Usage
 
 This package provides a wrapper for League Event by implementing `EventDispatcherInterface` to replace Symfony EventDispatcher in your application. This way you can use your custom Domain Events and Listeners in packages which lock Symfony EventDispatcher in.
+
+``` php
+use League\Event\Compat\Symfony\EventDispatcher;
+
+// You can optionally pass an EmitterInterface in the constructor
+$eventDispatcher = new EventDispatcher;
+
+// use $eventDispatcher as you would use the symfony one
+
+// You can add your custom listeners which will receive an object implementing EventInterface
+$eventDispatcher->getEmitter()->addListener(...);
+
+// DON'T EMIT EVENTS MANUALLY WHICH HAVE SYMFONY LISTENERS
+$eventDispatcher->getEmitter()->emit('symfony_event');
+```
 
 
 ## Testing
