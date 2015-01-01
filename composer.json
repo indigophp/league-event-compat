@@ -1,6 +1,6 @@
 {
-    "name": "indigophp/event-compat",
-    "description": "Event compatibility layer for Symfony EventDispatcher",
+    "name": "indigophp/league-event-compat",
+    "description": "League Event compatibility layer for Symfony EventDispatcher",
     "license": "MIT",
     "keywords": ["league", "symfony", "event"],
     "homepage": "https://indigophp.com",
