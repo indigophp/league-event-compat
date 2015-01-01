@@ -4,7 +4,9 @@ namespace spec\League\Event\Compat\Symfony;
 
 use League\Event\Compat\Stub\Symfony\TestEventListener;
 use Symfony\Component\EventDispatcher\Event as SymfonyEvent;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use League\Event\Compat\Stub\Symfony\TestEventSubscriber;
+use League\Event\Compat\Stub\Symfony\TestEventSubscriberWithPriorities;
+use League\Event\Compat\Stub\Symfony\TestEventSubscriberWithMultipleListeners;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -115,21 +117,85 @@ class EventDispatcherSpec extends ObjectBehavior
         $this->hasListeners('pre.foo')->shouldReturn(false);
     }
 
-    /**
-     * It does not work and fails with the following message:
-     *
-     * Using $this when not in object context in PATH/vendor/phpspec/prophecy/src/Prophecy/Doubler/Generator/ClassCreator.php(49) : eval()'d code on line 6
-     */
-    function it_should_allow_to_add_a_subscriber(EventSubscriberInterface $subscriber)
+    function it_should_allow_to_add_a_subscriber()
     {
-        // $subscriber->getSubscribedEvents()->willReturn([
-        //     'pre.foo'  => 'preFoo',
-        //     'post.foo' => 'postFoo',
-        // ]);
+        $subscriber = new TestEventSubscriber;
+        $this->addSubscriber($subscriber);
 
-        // $this->addSubscriber($subscriber);
+        $this->hasListeners('pre.foo')->shouldReturn(true);
+        $this->hasListeners('post.foo')->shouldReturn(true);
+    }
 
-        // $this->hasListeners('pre.foo')->shouldReturn(true);
-        // $this->hasListeners('post.foo')->shouldReturn(true);
+    function it_should_allow_to_add_a_subscriber_with_priorities()
+    {
+        $subscriber = new TestEventSubscriber;
+        $this->addSubscriber($subscriber);
+
+        $subscriberWithPriorities = new TestEventSubscriberWithPriorities;
+        $this->addSubscriber($subscriberWithPriorities);
+
+        $expected = [
+            [$subscriberWithPriorities, 'preFoo'],
+            [$subscriber, 'preFoo'],
+        ];
+
+        $this->getListeners('pre.foo')->shouldReturn($expected);
+        $this->hasListeners('pre.foo')->shouldReturn(true);
+    }
+
+    function it_should_allow_to_add_a_subscriber_with_multiple_listeners()
+    {
+        $subscriber = new TestEventSubscriberWithMultipleListeners;
+        $this->addSubscriber($subscriber);
+
+        $expected = [
+            [$subscriber, 'preFoo2'],
+            [$subscriber, 'preFoo1'],
+        ];
+
+        $this->getListeners('pre.foo')->shouldReturn($expected);
+        $this->hasListeners('pre.foo')->shouldReturn(true);
+    }
+
+    function it_should_allow_to_remove_a_subscriber()
+    {
+        $subscriber = new TestEventSubscriber;
+        $this->addSubscriber($subscriber);
+
+        $this->hasListeners('pre.foo')->shouldReturn(true);
+        $this->hasListeners('post.foo')->shouldReturn(true);
+
+        $this->removeSubscriber($subscriber);
+
+        $this->hasListeners('pre.foo')->shouldReturn(false);
+        $this->hasListeners('post.foo')->shouldReturn(false);
+    }
+
+    function it_should_allow_to_remove_a_subscriber_with_priorities()
+    {
+        $subscriber = new TestEventSubscriber;
+        $this->addSubscriber($subscriber);
+
+        $subscriberWithPriorities = new TestEventSubscriberWithPriorities;
+        $this->addSubscriber($subscriberWithPriorities);
+
+        $this->hasListeners('pre.foo')->shouldReturn(true);
+
+        $this->removeSubscriber($subscriber);
+        $this->removeSubscriber($subscriberWithPriorities);
+
+        $this->hasListeners('pre.foo')->shouldReturn(false);
+    }
+
+    function it_should_allow_to_remove_a_subscriber_with_multiple_listeners()
+    {
+        $subscriber = new TestEventSubscriberWithMultipleListeners;
+        $this->addSubscriber($subscriber);
+
+        $this->hasListeners('pre.foo')->shouldReturn(true);
+
+        $this->removeSubscriber($subscriber);
+
+        $this->hasListeners('pre.foo')->shouldReturn(false);
     }
 }
